@@ -6,11 +6,13 @@
 #     https://docs.scrapy.org/en/latest/topics/settings.html
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
+import os
 
 BOT_NAME = 'ukonlinestores'
 
 SPIDER_MODULES = ['ukonlinestores.spiders']
 NEWSPIDER_MODULE = 'ukonlinestores.spiders'
+PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
