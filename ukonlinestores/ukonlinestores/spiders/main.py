@@ -2,164 +2,101 @@ import scrapy
 import json
 from scrapy.shell import inspect_response
 
+from ukonlinestores.ukonlinestores.items import UkonlinestoresItem
+
 
 class MainSpider(scrapy.Spider):
     name = 'main'
     allowed_domains = ['ukonlinestores.co.uk']
-    # start_urls = ['https://ukonlinestores.co.uk/amazon-uk-sellers/']
+    start_urls = ['https://ukonlinestores.co.uk/amazon-uk-sellers/']
     search_url = 'https://ukonlinestores.co.uk/wp-admin/admin-ajax.php?action=get_wdtable&table_id=9'
     handle_httpstatus_list = [400]
 
     def parse_search(self, response):
-        # data = json.loads(response.text)
+        data = json.loads(response.body)['data']
         inspect_response(response, self)
-        # item = UkonlinestoresItem()
-        # list_data = data["date"]
-        # for i in range(len(data["date"])):
-        #     item['seller_name'] = list_data[2]
-        #     print(item['seller_name'])
+        item = UkonlinestoresItem()
 
-    def start_requests(self):
+        for line in data[str]:
+            item['seller_name'] = line[1]
+            item['amazon_store'] = line[2].split()[1].lstrip('href=').strip('\'')
+            item['main_category'] = line[4]
+            item['n_of_products'] = line[5]
+            item['rank'] = line[6]
+            item['change'] = line[7]
+            item['positive_feedback'] = line[10]
+            item['feedback'] = line[14]
+            item['feedback_lifetime'] = line[15]
+            item['fulfilment'] = line[16]
+            print(item['seller_name'])
+
+    def parse(self, response):
         headers = {
-            'authority': 'ukonlinestores.co.uk',
-            'accept': 'application/json, text/javascript, */*; q=0.01',
-            'dnt': '1',
-            'x-requested-with': 'XMLHttpRequest',
-            'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36',
-            'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
-            'origin': 'https://ukonlinestores.co.uk',
-            'sec-fetch-site': 'same-origin',
-            'sec-fetch-mode': 'cors',
-            'sec-fetch-dest': 'empty',
-            'referer': 'https://ukonlinestores.co.uk/amazon-uk-sellers/',
-            'accept-language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
-            'cookie': '_ga=GA1.3.1327773904.1594840444; _gid=GA1.3.1108160461.1594840444; _gat=1; _gat_gtag_UA_111791420_1=1',
-        }
-
-        params = {
-            'action': 'get_wdtable',
-            'table_id': '21',
+            "authority": "ukonlinestores.co.uk",
+            "accept": "application/json, text/javascript, */*; q=0.01",
+            "dnt": "1",
+            "x-requested-with": "XMLHttpRequest",
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
+            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "origin": "https://ukonlinestores.co.uk",
+            "sec-fetch-site": "same-origin",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-dest": "empty",
+            "referer": "https://ukonlinestores.co.uk/amazon-uk-sellers/",
+            "accept-language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7"
         }
 
         cookies = {
-            '_ga': 'GA1.3.1327773904.1594840444',
-            '_gid': 'GA1.3.1108160461.1594840444',
-            'gat': '1',
-            '_gat_gtag_UA_111791420_1': '1',
+            "_ga": "GA1.3.1327773904.1594840444",
+            " _gid": "GA1.3.1108160461.1594840444",
+            " _gat": "1",
+            " _gat_gtag_UA_111791420_1": "1"
         }
 
-        data = {
-            'draw': '2',
-            'columns[0][data]': '0',
-            'columns[0][name]': 'wdt_ID',
-            'columns[0][searchable]': 'true',
-            'columns[0][orderable]': 'true',
-            'columns[0][search][value]': '',
-            'columns[0][search][regex]': 'false',
-            'columns[1][data]': '1',
-            'columns[1][name]': 'sellerid',
-            'columns[1][searchable]': 'true',
-            'columns[1][orderable]': 'true',
-            'columns[1][search][value]': '',
-            'columns[1][search][regex]': 'false',
-            'columns[2][data]': '2',
-            'columns[2][name]': 'storefronturl',
-            'columns[2][searchable]': 'true',
-            'columns[2][orderable]': 'false',
-            'columns[2][search][value]': '',
-            'columns[2][search][regex]': 'false',
-            'columns[3][data]': '3',
-            'columns[3][name]': 'sellername',
-            'columns[3][searchable]': 'true',
-            'columns[3][orderable]': 'true',
-            'columns[3][search][value]': '',
-            'columns[3][search][regex]': 'false',
-            'columns[4][data]': '4',
-            'columns[4][name]': 'maincategory',
-            'columns[4][searchable]': 'true',
-            'columns[4][orderable]': 'true',
-            'columns[4][search][value]': '',
-            'columns[4][search][regex]': 'false',
-            'columns[5][data]': '5',
-            'columns[5][name]': 'noofproducts',
-            'columns[5][searchable]': 'true',
-            'columns[5][orderable]': 'true',
-            'columns[5][search][value]': '',
-            'columns[5][search][regex]': 'false',
-            'columns[6][data]': '6',
-            'columns[6][name]': 'rank',
-            'columns[6][searchable]': 'true',
-            'columns[6][orderable]': 'true',
-            'columns[6][search][value]': '',
-            'columns[6][search][regex]': 'false',
-            'columns[7][data]': '7',
-            'columns[7][name]': 'change',
-            'columns[7][searchable]': 'true',
-            'columns[7][orderable]': 'false',
-            'columns[7][search][value]': '',
-            'columns[7][search][regex]': 'false',
-            'columns[8][data]': '8',
-            'columns[8][name]': 'positive30day',
-            'columns[8][searchable]': 'true',
-            'columns[8][orderable]': 'true',
-            'columns[8][search][value]': '',
-            'columns[8][search][regex]': 'false',
-            'columns[9][data]': '9',
-            'columns[9][name]': 'positive90day',
-            'columns[9][searchable]': 'true',
-            'columns[9][orderable]': 'true',
-            'columns[9][search][value]': '',
-            'columns[9][search][regex]': 'false',
-            'columns[10][data]': '10',
-            'columns[10][name]': 'positive12months',
-            'columns[10][searchable]': 'true',
-            'columns[10][orderable]': 'true',
-            'columns[10][search][value]': '',
-            'columns[10][search][regex]': 'false',
-            'columns[11][data]': '11',
-            'columns[11][name]': 'positivelifetime',
-            'columns[11][searchable]': 'true',
-            'columns[11][orderable]': 'true',
-            'columns[11][search][value]': '',
-            'columns[11][search][regex]': 'false',
-            'columns[12][data]': '12',
-            'columns[12][name]': 'count30day',
-            'columns[12][searchable]': 'true',
-            'columns[12][orderable]': 'true',
-            'columns[12][search][value]': '',
-            'columns[12][search][regex]': 'false',
-            'columns[13][data]': '13',
-            'columns[13][name]': 'count90day',
-            'columns[13][searchable]': 'true',
-            'columns[13][orderable]': 'true',
-            'columns[13][search][value]': '',
-            'columns[13][search][regex]': 'false',
-            'columns[14][data]': '14',
-            'columns[14][name]': 'count12months',
-            'columns[14][searchable]': 'true',
-            'columns[14][orderable]': 'true',
-            'columns[14][search][value]': '',
-            'columns[14][search][regex]': 'false',
-            'columns[15][data]': '15',
-            'columns[15][name]': 'countlifetime',
-            'columns[15][searchable]': 'true',
-            'columns[15][orderable]': 'true',
-            'columns[15][search][value]': '',
-            'columns[15][search][regex]': 'false',
-            'columns[16][data]': '16',
-            'columns[16][name]': 'fulfilmenttype1',
-            'columns[16][searchable]': 'true',
-            'columns[16][orderable]': 'true',
-            'columns[16][search][value]': '',
-            'columns[16][search][regex]': 'false',
-            'order[0][column]': '6',
-            'order[0][dir]': 'asc',
-            'start': '0',
-            'length': '10',
-            'search[value]': '',
-            'search[regex]': 'false',
-            'wdtNonce': 'fe41c4c9f5',
-            'sRangeSeparator': '|',
-        }
-        yield scrapy.Request(self.search_url, callback=self.parse_search, method='POST', body=json.dumps(data))
+        id_parse = response.xpath('//*[@id="wdtNonceFrontendEdit"]/@value').extract()[0]
+
+        body = 'draw=3&columns%5B0%5D%5Bdata%5D=0&columns%5B0%5D%5Bname%5D=wdt_ID&columns%5B0%5D%5Bsearchable%5D' \
+               '=true&columns%5B0%5D%5Borderable%5D=true&columns%5B0%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B0%5D' \
+               '%5Bsearch%5D%5Bregex%5D=false&columns%5B1%5D%5Bdata%5D=1&columns%5B1%5D%5Bname%5D=sellerid&columns' \
+               '%5B1%5D%5Bsearchable%5D=true&columns%5B1%5D%5Borderable%5D=true&columns%5B1%5D%5Bsearch%5D%5Bvalue' \
+               '%5D=&columns%5B1%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B2%5D%5Bdata%5D=2&columns%5B2%5D%5Bname%5D' \
+               '=storefronturl&columns%5B2%5D%5Bsearchable%5D=true&columns%5B2%5D%5Borderable%5D=false&columns%5B2' \
+               '%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B2%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B3%5D%5Bdata%5D=3' \
+               '&columns%5B3%5D%5Bname%5D=sellername&columns%5B3%5D%5Bsearchable%5D=true&columns%5B3%5D%5Borderable' \
+               '%5D=true&columns%5B3%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B3%5D%5Bsearch%5D%5Bregex%5D=false&columns' \
+               '%5B4%5D%5Bdata%5D=4&columns%5B4%5D%5Bname%5D=maincategory&columns%5B4%5D%5Bsearchable%5D=true' \
+               '&columns%5B4%5D%5Borderable%5D=true&columns%5B4%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B4%5D%5Bsearch' \
+               '%5D%5Bregex%5D=false&columns%5B5%5D%5Bdata%5D=5&columns%5B5%5D%5Bname%5D=noofproducts&columns%5B5%5D' \
+               '%5Bsearchable%5D=true&columns%5B5%5D%5Borderable%5D=true&columns%5B5%5D%5Bsearch%5D%5Bvalue%5D' \
+               '=&columns%5B5%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B6%5D%5Bdata%5D=6&columns%5B6%5D%5Bname%5D' \
+               '=rank&columns%5B6%5D%5Bsearchable%5D=true&columns%5B6%5D%5Borderable%5D=true&columns%5B6%5D%5Bsearch' \
+               '%5D%5Bvalue%5D=&columns%5B6%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B7%5D%5Bdata%5D=7&columns%5B7' \
+               '%5D%5Bname%5D=change&columns%5B7%5D%5Bsearchable%5D=true&columns%5B7%5D%5Borderable%5D=false&columns' \
+               '%5B7%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B7%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B8%5D%5Bdata%5D' \
+               '=8&columns%5B8%5D%5Bname%5D=positive30day&columns%5B8%5D%5Bsearchable%5D=true&columns%5B8%5D' \
+               '%5Borderable%5D=true&columns%5B8%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B8%5D%5Bsearch%5D%5Bregex%5D' \
+               '=false&columns%5B9%5D%5Bdata%5D=9&columns%5B9%5D%5Bname%5D=positive90day&columns%5B9%5D%5Bsearchable' \
+               '%5D=true&columns%5B9%5D%5Borderable%5D=true&columns%5B9%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B9%5D' \
+               '%5Bsearch%5D%5Bregex%5D=false&columns%5B10%5D%5Bdata%5D=10&columns%5B10%5D%5Bname%5D' \
+               '=positive12months&columns%5B10%5D%5Bsearchable%5D=true&columns%5B10%5D%5Borderable%5D=true&columns' \
+               '%5B10%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B10%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B11%5D%5Bdata' \
+               '%5D=11&columns%5B11%5D%5Bname%5D=positivelifetime&columns%5B11%5D%5Bsearchable%5D=true&columns%5B11' \
+               '%5D%5Borderable%5D=true&columns%5B11%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B11%5D%5Bsearch%5D%5Bregex' \
+               '%5D=false&columns%5B12%5D%5Bdata%5D=12&columns%5B12%5D%5Bname%5D=count30day&columns%5B12%5D' \
+               '%5Bsearchable%5D=true&columns%5B12%5D%5Borderable%5D=true&columns%5B12%5D%5Bsearch%5D%5Bvalue%5D' \
+               '=&columns%5B12%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B13%5D%5Bdata%5D=13&columns%5B13%5D%5Bname' \
+               '%5D=count90day&columns%5B13%5D%5Bsearchable%5D=true&columns%5B13%5D%5Borderable%5D=true&columns%5B13' \
+               '%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B13%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B14%5D%5Bdata%5D' \
+               '=14&columns%5B14%5D%5Bname%5D=count12months&columns%5B14%5D%5Bsearchable%5D=true&columns%5B14%5D' \
+               '%5Borderable%5D=true&columns%5B14%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B14%5D%5Bsearch%5D%5Bregex%5D' \
+               '=false&columns%5B15%5D%5Bdata%5D=15&columns%5B15%5D%5Bname%5D=countlifetime&columns%5B15%5D' \
+               '%5Bsearchable%5D=true&columns%5B15%5D%5Borderable%5D=true&columns%5B15%5D%5Bsearch%5D%5Bvalue%5D' \
+               '=&columns%5B15%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B16%5D%5Bdata%5D=16&columns%5B16%5D%5Bname' \
+               '%5D=fulfilmenttype1&columns%5B16%5D%5Bsearchable%5D=true&columns%5B16%5D%5Borderable%5D=true&columns' \
+               '%5B16%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B16%5D%5Bsearch%5D%5Bregex%5D=false&order%5B0%5D%5Bcolumn' \
+               '%5D=6&order%5B0%5D%5Bdir%5D=asc&start={}&length=10&search%5Bvalue%5D=&search%5Bregex%5D=false' \
+               '&wdtNonce={}&sRangeSeparator=%7C '
+
+        for i in range(6692):
+            yield scrapy.Request(url=self.search_url, callback=self.parse_search, method='POST', headers=headers, body=body.format(i*10, id_parse), cookies=cookies, dont_filter=True)
 

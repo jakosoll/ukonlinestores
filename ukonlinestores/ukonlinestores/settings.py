@@ -88,3 +88,18 @@ TELNETCONSOLE_ENABLED = False
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+FEED_EXPORT_FIELDS = [
+    'seller_name',
+    'amazon_store',
+    'main_category',
+    'n_of_products',
+    'rank',
+    'change',
+    'positive_feedback',
+    'feedback',
+    'feedback_lifetime',
+    'fulfilment'
+]
+FEED_EXPORTERS = {
+    'csv': 'main.exporters.CsvCustomSeparator'
+}
