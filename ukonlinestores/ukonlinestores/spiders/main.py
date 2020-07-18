@@ -1,9 +1,9 @@
 import scrapy
 import json
-from scrapy.shell import inspect_response
 
-from ukonlinestores.ukonlinestores.items import UkonlinestoresItem
 
+from ..items import UkonlinestoresItem
+import time
 
 class MainSpider(scrapy.Spider):
     name = 'main'
@@ -14,10 +14,10 @@ class MainSpider(scrapy.Spider):
 
     def parse_search(self, response):
         data = json.loads(response.body)['data']
-        inspect_response(response, self)
+        # inspect_response(response, self)
         item = UkonlinestoresItem()
 
-        for line in data[str]:
+        for line in data:
             item['seller_name'] = line[1]
             item['amazon_store'] = line[2].split()[1].lstrip('href=').strip('\'')
             item['main_category'] = line[4]
@@ -28,7 +28,8 @@ class MainSpider(scrapy.Spider):
             item['feedback'] = line[14]
             item['feedback_lifetime'] = line[15]
             item['fulfilment'] = line[16]
-            print(item['seller_name'])
+            # print(item['seller_name'])
+            yield item
 
     def parse(self, response):
         headers = {
@@ -94,9 +95,9 @@ class MainSpider(scrapy.Spider):
                '=&columns%5B15%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B16%5D%5Bdata%5D=16&columns%5B16%5D%5Bname' \
                '%5D=fulfilmenttype1&columns%5B16%5D%5Bsearchable%5D=true&columns%5B16%5D%5Borderable%5D=true&columns' \
                '%5B16%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B16%5D%5Bsearch%5D%5Bregex%5D=false&order%5B0%5D%5Bcolumn' \
-               '%5D=6&order%5B0%5D%5Bdir%5D=asc&start={}&length=10&search%5Bvalue%5D=&search%5Bregex%5D=false' \
+               '%5D=6&order%5B0%5D%5Bdir%5D=asc&start={}&length=50&search%5Bvalue%5D=&search%5Bregex%5D=false' \
                '&wdtNonce={}&sRangeSeparator=%7C '
 
-        for i in range(6692):
+        for i in range(1339):
             yield scrapy.Request(url=self.search_url, callback=self.parse_search, method='POST', headers=headers, body=body.format(i*10, id_parse), cookies=cookies, dont_filter=True)
 
